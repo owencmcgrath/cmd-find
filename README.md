@@ -90,6 +90,7 @@ You can override the model on the options page by entering any valid model strin
 ## Roadmap
 
 - [ ] chrome web release
+- [ ] align icons
 - [ ] light/dark mode
 - [ ] demo website
 - [ ] improve markdown rendering
