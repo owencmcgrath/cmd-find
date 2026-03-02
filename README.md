@@ -1,6 +1,6 @@
 # cmd-find
 
-A Chrome extension that replaces the native Cmd+F (Ctrl+F on Windows) find bar with an AI-powered semantic search overlay. Ask questions about the page in plain language instead of searching for exact strings.
+A Chrome extension that replaces the native `Cmd+F` (`Ctrl+F` on Windows) find bar with an AI-powered semantic search overlay. Ask questions about the page in plain language instead of searching for exact strings.
 
 No backend. No account. No data leaves your browser except the direct API call you authorize.
 
