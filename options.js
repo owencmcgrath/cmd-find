@@ -29,9 +29,23 @@ function updateModelPlaceholder() {
 
 providerEl.addEventListener("change", updateModelPlaceholder);
 
+// Migrate any existing data from sync to local (one-time)
+async function migrateSyncToLocal() {
+  const synced = await chrome.storage.sync.get(["provider", "apiKey", "model"]);
+  if (synced.provider || synced.apiKey || synced.model) {
+    const local = await chrome.storage.local.get(["provider", "apiKey", "model"]);
+    // Only migrate if local has no data yet
+    if (!local.provider && !local.apiKey && !local.model) {
+      await chrome.storage.local.set(synced);
+    }
+    await chrome.storage.sync.remove(["provider", "apiKey", "model"]);
+  }
+}
+
 // Load saved settings on open
 async function loadSettings() {
-  const stored = await chrome.storage.sync.get(["provider", "apiKey", "model"]);
+  await migrateSyncToLocal();
+  const stored = await chrome.storage.local.get(["provider", "apiKey", "model"]);
   if (
     stored.provider &&
     providerEl.querySelector(`option[value="${stored.provider}"]`)
@@ -48,7 +62,7 @@ saveBtn.addEventListener("click", async () => {
   const apiKey = apiKeyEl.value.trim();
   const model = modelEl.value.trim();
 
-  await chrome.storage.sync.set({ provider, apiKey, model });
+  await chrome.storage.local.set({ provider, apiKey, model });
 
   // Brief "Saved" confirmation
   clearTimeout(feedbackTimeout);

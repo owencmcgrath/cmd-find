@@ -391,7 +391,7 @@ async function handleSearch(query) {
 
   let settings;
   try {
-    settings = await chrome.storage.sync.get(["provider", "apiKey", "model"]);
+    settings = await chrome.storage.local.get(["provider", "apiKey", "model"]);
   } catch (err) {
     showError("Could not read settings. Try reloading the extension.");
     return;
