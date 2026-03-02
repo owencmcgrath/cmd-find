@@ -86,3 +86,9 @@ No other network access is made. No telemetry, no analytics.
 | Google | `gemini-2.5-flash` |
 
 You can override the model on the options page by entering any valid model string for your provider.
+
+## Roadmap
+
+[] chrome web release
+[] light/dark mode
+[] demo website
