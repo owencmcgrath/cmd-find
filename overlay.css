@@ -197,6 +197,34 @@
     color: var(--cmdf-code-color);
 }
 
+.cmdf-code-wrapper {
+    position: relative;
+}
+
+.cmdf-copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--cmdf-surface);
+    border: 1px solid var(--cmdf-border);
+    border-radius: 5px;
+    padding: 3px 6px;
+    cursor: pointer;
+    color: var(--cmdf-muted);
+    opacity: 0;
+    transition: opacity 0.15s;
+    display: flex;
+    align-items: center;
+}
+
+.cmdf-code-wrapper:hover .cmdf-copy-btn {
+    opacity: 1;
+}
+
+.cmdf-copy-btn.copied {
+    color: var(--cmdf-accent);
+}
+
 #cmdf-results pre {
     background: var(--cmdf-surface);
     border: 1px solid var(--cmdf-border);
@@ -205,13 +233,16 @@
     overflow-x: auto;
     margin: 8px 0;
     white-space: pre;
+    text-align: left;
 }
 #cmdf-results pre code {
+    display: block;
     background: none;
     border: none;
     padding: 0;
     color: var(--cmdf-pre-code-color);
     font-size: 13px;
+    text-align: left;
 }
 
 #cmdf-results strong {

@@ -20,7 +20,7 @@ const PROVIDERS = {
 };
 
 const SYSTEM_PROMPT =
-  "You are a helpful assistant. The user is searching within a web page. Answer their queries using only the provided page content. Be concise and direct, answering correctly, but with as few sentences as possible. When listing items, always use markdown bullet points (- item). Never use horizontal rules (<hr>) or dividers in your response.";
+  "You are a helpful assistant. The user is searching within a web page. Answer their queries using only the provided page content. Be concise and direct, answering correctly, but with as few sentences as possible. When listing items, always use markdown bullet points (- item). Never use horizontal rules (<hr>) or dividers in your response. Also, never use code blocks, instead choosing to use inline code formatting. If the page content does not contain the answer, say 'I couldn't find that information on the page.' Do not make up answers. The user may ask follow-up questions about the same page, so keep track of the conversation history and use it for context. Also, never ask the user for information that may be on the page — if you don't have enough information to answer, just say you couldn't find it.";
 
 // ─── Page text extraction ─────────────────────────────────────────────────────
 
@@ -285,13 +285,71 @@ function renderMarkdownToDOM(raw) {
   const parts = raw.split(/(```[\s\S]*?```)/g);
   parts.forEach((part, i) => {
     if (i % 2 === 1) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "cmdf-code-wrapper";
+
       const pre = document.createElement("pre");
       const code = document.createElement("code");
       code.textContent = part
         .replace(/^```[^\n]*\n?/, "")
-        .replace(/\n?```$/, "");
+        .replace(/\n?```$/, "")
+        .replace(/\n+$/, "");
       pre.appendChild(code);
-      frag.appendChild(pre);
+
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "cmdf-copy-btn";
+      copyBtn.title = "Copy";
+
+      function makeSvg(attrs, children) {
+        const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        s.setAttribute("width", "14");
+        s.setAttribute("height", "14");
+        s.setAttribute("viewBox", "0 0 24 24");
+        s.setAttribute("fill", "none");
+        s.setAttribute("stroke", "currentColor");
+        s.setAttribute("stroke-width", "2");
+        s.setAttribute("stroke-linecap", "round");
+        s.setAttribute("stroke-linejoin", "round");
+        children.forEach(([tag, a]) => {
+          const el = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            tag,
+          );
+          Object.entries(a).forEach(([k, v]) => el.setAttribute(k, v));
+          s.appendChild(el);
+        });
+        return s;
+      }
+
+      const copySvg = makeSvg({}, [
+        ["rect", { x: "9", y: "9", width: "13", height: "13", rx: "2" }],
+        [
+          "path",
+          { d: "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" },
+        ],
+      ]);
+      const checkSvg = makeSvg({}, [
+        ["polyline", { points: "20 6 9 17 4 12" }],
+      ]);
+      copyBtn.appendChild(copySvg);
+
+      copyBtn.addEventListener("click", () => {
+        navigator.clipboard
+          .writeText(code.textContent)
+          .then(() => {
+            copyBtn.classList.add("copied");
+            copyBtn.replaceChild(checkSvg, copySvg);
+            setTimeout(() => {
+              copyBtn.classList.remove("copied");
+              copyBtn.replaceChild(copySvg, checkSvg);
+            }, 1500);
+          })
+          .catch(() => {});
+      });
+
+      wrapper.appendChild(pre);
+      wrapper.appendChild(copyBtn);
+      frag.appendChild(wrapper);
       return;
     }
 
