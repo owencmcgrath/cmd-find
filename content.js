@@ -210,6 +210,9 @@ async function showOverlay() {
       window.matchMedia("(prefers-color-scheme: light)").matches);
   overlay.classList.toggle("cmdf-light", preferLight);
 
+  // Load persisted query history for this hostname
+  queryHistory = await loadQueryHistory();
+
   clearSession();
   inputEl.focus();
 }
