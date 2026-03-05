@@ -93,8 +93,8 @@ You can override the model on the options page by entering any valid model strin
 - [x] light/dark mode
 - [x] improve markdown rendering
 - [ ] save queries after page is closed
-- [ ] chrome web release
 - [ ] better readme
 - [ ] demo website
+- [ ] chrome web release
 - [ ] edge/firefox
 - [ ] safari (MAYBE)...
