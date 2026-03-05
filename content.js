@@ -20,7 +20,7 @@ const PROVIDERS = {
 };
 
 const SYSTEM_PROMPT =
-  "You are a helpful assistant. The user is searching within a web page. Answer their queries using only the provided page content. Be concise and direct, answering correctly, but with as few sentences as possible. When listing items, always use markdown bullet points (- item). Never use horizontal rules (<hr>) or dividers in your response. Also, never use code blocks, instead choosing to use inline code formatting. If the page content does not contain the answer, say 'I couldn't find that information on the page.' Do not make up answers. The user may ask follow-up questions about the same page, so keep track of the conversation history and use it for context. Also, never ask the user for information that may be on the page — if you don't have enough information to answer, just say you couldn't find it.";
+  "You are a helpful assistant. The user is searching within a web page. Answer their queries using only the provided page content. Be concise and direct, answering correctly, but with as few sentences as possible. When listing items, always use markdown bullet points (- item). Never use horizontal rules (<hr>) or dividers in your response. Also, never use code blocks, instead choosing to use inline code formatting.";
 
 // ─── Page text extraction ─────────────────────────────────────────────────────
 
@@ -70,10 +70,23 @@ let conversationTurns = []; // { query: string, response: string }[]
 let currentQuery = "";
 let streamBuffer = "";
 
-// Query history — persists across overlay open/close, max 10 entries
+// Query history — persists across overlay open/close, max 25 entries
 let queryHistory = [];
 let historyIndex = -1; // -1 = not browsing; 0 = most recent entry
 let historyDraft = ""; // saves in-progress input when user starts navigating
+
+// Load saved query history for the current hostname from persistent storage
+async function loadQueryHistory() {
+  const key = `queries_${window.location.hostname}`;
+  const result = await chrome.storage.local.get(key);
+  return result[key] || [];
+}
+
+// Persist query history for the current hostname
+async function saveQueryHistory(queries) {
+  const key = `queries_${window.location.hostname}`;
+  await chrome.storage.local.set({ [key]: queries });
+}
 
 async function createOverlay() {
   if (overlay) return;
@@ -196,6 +209,9 @@ async function showOverlay() {
     ((!theme || theme === "system") &&
       window.matchMedia("(prefers-color-scheme: light)").matches);
   overlay.classList.toggle("cmdf-light", preferLight);
+
+  // Load persisted query history for this hostname
+  queryHistory = await loadQueryHistory();
 
   clearSession();
   inputEl.focus();
@@ -519,10 +535,11 @@ async function handleSearch(query) {
   currentQuery = query;
   inputEl.value = ""; // Clear input so user can type a follow-up
 
-  // Record in history (dedupe consecutive identical queries, cap at 10)
+  // Record in history (dedupe consecutive identical queries, cap at 25)
   if (queryHistory[queryHistory.length - 1] !== query) {
     queryHistory.push(query);
-    if (queryHistory.length > 10) queryHistory.shift();
+    if (queryHistory.length > 25) queryHistory.shift();
+    saveQueryHistory(queryHistory); // fire-and-forget
   }
   historyIndex = -1;
   historyDraft = "";
