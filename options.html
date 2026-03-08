@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>cmd-find — Settings</title>
+        <style>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            /* ── Theme tokens — dark (default) ───────────────────── */
+            :root {
+                --bg:          #111113;
+                --surface:     #1c1c1e;
+                --surface2:    #2c2c2e;
+                --border:      #3a3a3c;
+                --text:        #f5f5f7;
+                --text-label:  #8e8e93;
+                --text-subtle: #636366;
+                --text-hint:   #48484a;
+                --btn-bg:      #ffffff;
+                --btn-color:   #111113;
+                --btn-hover:   #e5e5e7;
+                --focus:       #0a84ff;
+                --saved:       #30d158;
+            }
+
+            /* ── Light theme overrides ────────────────────────────── */
+            :root.cmdf-light {
+                --bg:          #f5f5f7;
+                --surface:     #ffffff;
+                --surface2:    #f2f2f5;
+                --border:      #d8d8de;
+                --text:        #111113;
+                --text-label:  #636366;
+                --text-subtle: #8e8e93;
+                --text-hint:   #aeaeb2;
+                --btn-bg:      #111113;
+                --btn-color:   #ffffff;
+                --btn-hover:   #3a3a3c;
+                --focus:       #0071e3;
+                --saved:       #1a9e3f;
+            }
+
+            body {
+                background: var(--bg);
+                color: var(--text);
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    sans-serif;
+                font-size: 14px;
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                padding: 48px 20px;
+                transition: background 0.2s, color 0.2s;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 440px;
+            }
+
+            header {
+                margin-bottom: 32px;
+            }
+
+            .header-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 6px;
+            }
+
+            header h1 {
+                font-size: 20px;
+                font-weight: 600;
+                letter-spacing: -0.3px;
+                color: var(--text);
+            }
+
+            header p {
+                font-size: 13px;
+                color: var(--text-subtle);
+                line-height: 1.5;
+            }
+
+            /* Theme toggle */
+            #theme-toggle {
+                background: none;
+                border: 1px solid var(--border);
+                border-radius: 7px;
+                padding: 6px 7px;
+                cursor: pointer;
+                color: var(--text-label);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition:
+                    background 0.15s,
+                    border-color 0.15s,
+                    color 0.15s;
+            }
+
+            #theme-toggle:hover {
+                background: var(--surface2);
+                color: var(--text);
+            }
+
+            .card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                transition: background 0.2s, border-color 0.2s;
+            }
+
+            .field {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            label {
+                font-size: 12px;
+                font-weight: 500;
+                color: var(--text-label);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            select,
+            input[type="password"],
+            input[type="text"] {
+                width: 100%;
+                background: var(--surface2);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                color: var(--text);
+                font-size: 14px;
+                font-family: inherit;
+                padding: 9px 12px;
+                outline: none;
+                transition: border-color 0.15s, background 0.2s;
+                appearance: none;
+                -webkit-appearance: none;
+            }
+
+            select {
+                background-repeat: no-repeat;
+                background-position: right 12px center;
+                padding-right: 32px;
+            }
+
+            select:focus,
+            input:focus {
+                border-color: var(--focus);
+            }
+
+            input::placeholder {
+                color: var(--text-hint);
+            }
+
+            .hint {
+                font-size: 12px;
+                color: var(--text-hint);
+                line-height: 1.4;
+            }
+
+            .actions {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding-top: 4px;
+            }
+
+            #save-btn {
+                background: var(--btn-bg);
+                color: var(--btn-color);
+                border: none;
+                border-radius: 8px;
+                font-size: 14px;
+                font-family: inherit;
+                font-weight: 500;
+                padding: 9px 20px;
+                cursor: pointer;
+                transition:
+                    background 0.15s,
+                    opacity 0.15s;
+            }
+
+            #save-btn:hover {
+                background: var(--btn-hover);
+            }
+            #save-btn:active {
+                opacity: 0.85;
+            }
+
+            #save-feedback {
+                font-size: 13px;
+                color: var(--saved);
+                opacity: 0;
+                transition: opacity 0.2s;
+            }
+
+            #save-feedback.visible {
+                opacity: 1;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <div class="header-row">
+                    <h1>cmd-find</h1>
+                    <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+                        <!-- Auto/system = tilde (default) -->
+                        <span id="icon-auto" style="display:inline-block;width:15px;height:15px;line-height:15px;text-align:center;font-size:13px;font-weight:500;font-family:inherit">~</span>
+                        <!-- Moon = currently dark -->
+                        <svg id="icon-moon" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:none">
+                            <path d="M2.89 9.46A5.5 5.5 0 0 0 9.46 2.89a5.5 5.5 0 1 1-6.57 6.57Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+                        </svg>
+                        <!-- Sun = currently light -->
+                        <svg id="icon-sun" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:none">
+                            <circle cx="7.5" cy="7.5" r="2.5" stroke="currentColor" stroke-width="1.3"/>
+                            <path d="M7.5 1v1.5M7.5 12.5V14M1 7.5h1.5M12.5 7.5H14M3.05 3.05l1.06 1.06M10.89 10.89l1.06 1.06M10.89 4.11l1.06-1.06M3.05 11.95l1.06-1.06" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <p>
+                    Press
+                    <strong id="shortcut-hint">⌘+Shift+F</strong> on any page to
+                    open the search overlay.
+                </p>
+            </header>
+
+            <div class="card">
+                <div class="field">
+                    <label for="provider">provider</label>
+                    <select id="provider">
+                        <option value="openai">OpenAI</option>
+                        <option value="anthropic">Anthropic</option>
+                        <option value="google">Google</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="api-key">API Key</label>
+                    <input
+                        type="password"
+                        id="api-key"
+                        placeholder="Paste your API key"
+                        autocomplete="off"
+                    />
+                </div>
+
+                <div class="field">
+                    <label for="model"
+                        >Model
+                        <span
+                            style="
+                                text-transform: none;
+                                font-weight: 400;
+                                color: var(--text-hint);
+                            "
+                            >(optional)</span
+                        ></label
+                    >
+                    <input type="text" id="model" autocomplete="off" />
+                    <span class="hint"
+                        >Leave blank to use the default model for the selected
+                        provider.</span
+                    >
+                </div>
+
+                <div class="actions">
+                    <button id="save-btn">Save</button>
+                    <span id="save-feedback">Saved</span>
+                </div>
+            </div>
+        </div>
+
+        <script src="options.js"></script>
+    </body>
+</html>
